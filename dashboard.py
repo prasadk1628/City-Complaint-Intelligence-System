@@ -1,18 +1,20 @@
+# 1️⃣ Imports
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
+# 2️⃣ App Title
 st.set_page_config(page_title="City Complaint Intelligence", layout="wide")
-
 st.title("City Complaint Intelligence System")
 
-# Load data
+# 3️⃣ Load + Clean Data
 @st.cache_data
 def load_data():
     return pd.read_csv("Log of complaints.csv", encoding='latin1')
 
 df = load_data()
 
-# --- Cleaning ---
 df['created_at'] = pd.to_datetime(df['created_at'], format='mixed')
 
 df = df.drop(columns=[
@@ -23,7 +25,6 @@ df = df.drop(columns=[
 df = df.dropna(subset=['ward_title', 'category_title'])
 df['civic_agency_title'] = df['civic_agency_title'].fillna('Unknown')
 
-# Category normalization
 df['category_title'] = df['category_title'].replace({
     'Streetlights': 'Street lighting',
     'Roads and Footpaths': 'Mobility - Roads, Footpaths and Infrastructure',
@@ -35,10 +36,9 @@ df['category_title'] = df['category_title'].replace({
     'Waste Management': 'Garbage and Unsanitary Practices'
 })
 
-# ✅ Create year column ONCE
 df['year'] = df['created_at'].dt.year
 
-# --- Filters ---
+# 4️⃣ Filters
 st.sidebar.header("Filters")
 
 year_options = ["All"] + sorted(df['year'].unique().tolist())
@@ -49,7 +49,6 @@ selected_ward = st.sidebar.selectbox(
     ["All"] + sorted(df['ward_title'].unique().tolist())
 )
 
-# ✅ Correct filtering logic
 filtered_df = df.copy()
 
 if selected_year != "All":
@@ -58,62 +57,90 @@ if selected_year != "All":
 if selected_ward != "All":
     filtered_df = filtered_df[filtered_df['ward_title'] == selected_ward]
 
-# --- Metrics ---
+# 5️⃣ KPI Section
 st.subheader("📊 Key Insights")
 
 col1, col2, col3 = st.columns(3)
 
 col1.metric("Total Complaints", len(filtered_df))
-col2.metric("Open Complaints (%)", round((filtered_df['complaint_status_title'] == 'Open').mean()*100, 2))
-col3.metric("Resolved Complaints (%)", round((filtered_df['complaint_status_title'] == 'Resolved').mean()*100, 2))
+col2.metric("Open Complaints (%)", round((filtered_df['complaint_status_title'] == 'Open').mean() * 100, 2))
+col3.metric("Resolved Complaints (%)", round((filtered_df['complaint_status_title'] == 'Resolved').mean() * 100, 2))
 
-# --- Top Categories ---
+# 6️⃣ Insight Explanation
+st.subheader("Key Insights :")
+
+st.write("""
+• Infrastructure issues dominate (roads, garbage, lighting)\n
+• Complaint volume dropped during COVID period\n
+• Certain wards show consistently high complaint density\n
+• Over 50% complaints remain unresolved\n
+""")
+
+st.subheader("What This Means :")
+
+st.write("""
+This system highlights critical urban issues and inefficiencies in service delivery.
+It can help city authorities prioritize high-impact areas and improve response time.
+""")
+
+# 7️⃣ Core Charts
 st.subheader("Top Complaint Categories")
 st.bar_chart(filtered_df['category_title'].value_counts().head(10))
 
-# --- Yearly Trend ---
 st.subheader("Yearly Complaint Trend")
 st.line_chart(filtered_df.groupby('year').size())
 
-# --- Status Distribution ---
 st.subheader("Complaint Status Distribution")
 st.bar_chart(filtered_df['complaint_status_title'].value_counts())
 
+# 8️⃣ Location Intelligence
+st.subheader("🚨 Top Problem Areas")
 
+top_wards = (
+    filtered_df[filtered_df['ward_title'] != 'Other']
+    .groupby('ward_title')
+    .size()
+    .sort_values(ascending=False)
+    .head(5)
+)
 
-import matplotlib.pyplot as plt
+st.write(top_wards)
 
+st.subheader("📍 Main Issue in Selected Area")
+
+if selected_ward != "All":
+    top_issue = (
+        filtered_df['category_title']
+        .value_counts()
+        .head(1)
+    )
+    st.write(top_issue)
+else:
+    st.write("Select a ward to see its main issue")
+
+# 9️⃣ Maps Section
 st.subheader("Complaint Locations Map (Fallback View)")
 
 map_data = filtered_df[['latitude', 'longitude']].dropna()
-
 map_data['latitude'] = pd.to_numeric(map_data['latitude'], errors='coerce')
 map_data['longitude'] = pd.to_numeric(map_data['longitude'], errors='coerce')
-
 map_data = map_data.dropna()
 
-# Plot using matplotlib
 fig, ax = plt.subplots()
-
 ax.scatter(
     map_data['longitude'],
     map_data['latitude'],
-    s=1,   # small dots
+    s=1,
     alpha=0.5
 )
-
 ax.set_xlabel("Longitude")
 ax.set_ylabel("Latitude")
 ax.set_title("Complaint Locations (Scatter Map)")
-
 st.pyplot(fig)
-
-import seaborn as sns
 
 st.subheader("Complaint Density Heatmap")
 
 fig2, ax2 = plt.subplots()
-
 sns.kdeplot(
     x=map_data['longitude'],
     y=map_data['latitude'],
@@ -122,32 +149,40 @@ sns.kdeplot(
     bw_adjust=0.5,
     ax=ax2
 )
-
 ax2.set_title("Complaint Hotspots")
 ax2.set_xlabel("Longitude")
 ax2.set_ylabel("Latitude")
-
 st.pyplot(fig2)
 
-st.subheader("Key Insights")
+# 🔟 System Performance
+st.subheader("⚙️ Resolution Efficiency")
 
-st.write("""
-• Infrastructure issues dominate (roads, garbage, lighting)
-• Complaint volume dropped during COVID period
-• Certain wards show consistently high complaint density
-• Over 50% complaints remain unresolved
-""")
+resolved = (filtered_df['complaint_status_title'] == 'Resolved').sum()
+total = len(filtered_df)
+efficiency = (resolved / total) * 100
 
-st.subheader("What This Means")
+st.metric("Resolution Rate (%)", round(efficiency, 2))
 
-st.write("""
-This system highlights critical urban issues and inefficiencies in service delivery.
-It can help city authorities prioritize high-impact areas and improve response time.
-""")
+st.subheader("🧠 Automated Insight")
 
+if efficiency < 40:
+    st.warning("Low resolution rate indicates inefficiency in complaint handling.")
+elif efficiency < 70:
+    st.info("Moderate performance in resolving complaints.")
+else:
+    st.success("Good resolution performance observed.")
+
+# 1️⃣1️⃣ Advanced Insight
+st.subheader("📈 Peak Complaint Month")
+
+monthly = filtered_df.groupby(filtered_df['created_at'].dt.to_period("M")).size()
+peak_month = monthly.idxmax()
+st.write(f"Highest complaints recorded in: {peak_month}")
+
+# 1️⃣2️⃣ About Section
 st.markdown("""
 ---
-### About
+### About :
 This project analyzes real-world civic complaint data to identify patterns,
 hotspots, and inefficiencies in urban service systems using data analytics.
 """)
