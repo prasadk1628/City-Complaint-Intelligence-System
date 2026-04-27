@@ -128,3 +128,26 @@ ax2.set_xlabel("Longitude")
 ax2.set_ylabel("Latitude")
 
 st.pyplot(fig2)
+
+st.subheader("Key Insights")
+
+st.write("""
+• Infrastructure issues dominate (roads, garbage, lighting)
+• Complaint volume dropped during COVID period
+• Certain wards show consistently high complaint density
+• Over 50% complaints remain unresolved
+""")
+
+st.subheader("What This Means")
+
+st.write("""
+This system highlights critical urban issues and inefficiencies in service delivery.
+It can help city authorities prioritize high-impact areas and improve response time.
+""")
+
+st.markdown("""
+---
+### About
+This project analyzes real-world civic complaint data to identify patterns,
+hotspots, and inefficiencies in urban service systems using data analytics.
+""")
