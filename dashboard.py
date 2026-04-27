@@ -103,3 +103,24 @@ ax.set_ylabel("Latitude")
 ax.set_title("Complaint Locations (Scatter Map)")
 
 st.pyplot(fig)
+
+import seaborn as sns
+
+st.subheader("Complaint Density Heatmap")
+
+fig2, ax2 = plt.subplots()
+
+sns.kdeplot(
+    x=map_data['longitude'],
+    y=map_data['latitude'],
+    cmap="Reds",
+    fill=True,
+    bw_adjust=0.5,
+    ax=ax2
+)
+
+ax2.set_title("Complaint Hotspots")
+ax2.set_xlabel("Longitude")
+ax2.set_ylabel("Latitude")
+
+st.pyplot(fig2)
