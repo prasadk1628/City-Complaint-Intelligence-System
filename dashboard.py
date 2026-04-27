@@ -6,7 +6,11 @@ st.set_page_config(page_title="City Complaint Intelligence", layout="wide")
 st.title("City Complaint Intelligence System")
 
 # Load data
-df = pd.read_csv("Log of complaints.csv", encoding='latin1')
+@st.cache_data
+def load_data():
+    return pd.read_csv("Log of complaints.csv", encoding='latin1')
+
+df = load_data()
 
 # --- Cleaning ---
 df['created_at'] = pd.to_datetime(df['created_at'], format='mixed')
