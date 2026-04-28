@@ -10,50 +10,50 @@ It transforms raw complaint data into actionable insights that can help city aut
 ## 🎯 Problem Statement
 Urban local bodies receive thousands of complaints related to infrastructure, sanitation, and public services. However, these complaints are rarely analyzed to:
 
-- Identify high-risk areas
-- Understand dominant issue categories
-- Measure resolution efficiency
-- Detect service gaps
+- Identify high-risk areas  
+- Understand dominant issue categories  
+- Measure resolution efficiency  
+- Detect service gaps  
 
 ---
 
 ## 💡 Solution
 This system provides an interactive dashboard that:
 
-- Analyzes complaint trends over time
-- Identifies high-density problem areas
-- Evaluates resolution performance
-- Highlights inefficiencies in service delivery
+- Analyzes complaint trends over time  
+- Identifies high-density problem areas  
+- Evaluates resolution performance  
+- Highlights inefficiencies in service delivery  
 
 ---
 
 ## 📊 Key Features
 
 ### 📈 Data Analysis
-- Category-wise complaint distribution
-- Yearly and monthly trends
-- Status distribution (Open, Resolved, etc.)
+- Category-wise complaint distribution  
+- Yearly and monthly trends  
+- Status distribution (Open, Resolved, etc.)  
 
 ### 🗺️ Geospatial Insights
-- Complaint location scatter visualization
-- Density heatmap to identify hotspots
+- Complaint location scatter visualization  
+- Density heatmap to identify hotspots  
 
 ### 🧠 Intelligent Insights
-- Automated insights based on real data
-- Identification of top problem areas
-- Main issue detection for selected ward
+- Automated insights based on real data  
+- Identification of top problem areas  
+- Main issue detection for selected ward  
 
 ### ⚙️ Performance Metrics
-- Resolution efficiency (%) KPI
-- Agency-wise performance comparison
-- Ward-wise complaint vs resolution analysis
+- Resolution efficiency (%) KPI  
+- Agency-wise performance comparison  
+- Ward-wise complaint vs resolution analysis  
 
 ### 🎛️ Interactive Dashboard
-- Filters for Year, Ward, and Agency
-- Dynamic updates across all visuals
+- Filters for Year, Ward, and Agency  
+- Dynamic updates across all visuals  
 
 ### ⬇️ Export Feature
-- Download filtered dataset for further analysis
+- Download filtered dataset for further analysis  
 
 ---
 
@@ -68,11 +68,11 @@ This system provides an interactive dashboard that:
 
 ## 🛠️ Tech Stack
 
-- **Python**
-- **Pandas** – Data processing
-- **Matplotlib & Seaborn** – Visualization
-- **Streamlit** – Interactive dashboard
-- **GitHub Codespaces** – Development environment
+- **Python**  
+- **Pandas** – Data processing  
+- **Matplotlib & Seaborn** – Visualization  
+- **Streamlit** – Interactive dashboard  
+- **GitHub Codespaces** – Development environment  
 
 ---
 
@@ -81,50 +81,45 @@ This system provides an interactive dashboard that:
 ```bash
 pip install -r requirements.txt
 streamlit run dashboard.py
-
----
-## 🌐 Live Demo
+```
+🌐 Live Demo
 
 👉 https://city-complaint-intelligence-system.streamlit.app/
 
-##📅 Data Source
-
+## 📅 Data Source
 Public civic complaint dataset (2019–2022)
 Contains ~16,000+ complaint records with location, category, and status
-
 ## 📈 Project Structure
-
 City-Complaint-Intelligence-System/
 │
 ├── dashboard.py
 ├── requirements.txt
 ├── Log of complaints.csv
 └── README.md
-
 ## 📊 Why This Project Matters
 
 This project demonstrates how data analytics can be used to:
 
-Improve public service delivery
-Identify infrastructure gaps
-Support data-driven governance
-Enhance citizen experience
+- Improve public service delivery
+- Identify infrastructure gaps
+- Support data-driven governance
+- Enhance citizen experience
 
 ## 🧠 Learnings
 
-Handling real-world messy data
-Feature engineering and data cleaning
-Building interactive dashboards
-Extracting actionable insights from raw data
+- Handling real-world messy data
+- Feature engineering and data cleaning
+- Building interactive dashboards
+- Extracting actionable insights from raw data
 
 ## 📌 Future Improvements
 
-Add real-time data integration
-Implement complaint prediction (ML model)
-Improve map visualization with advanced libraries
-Build API-based backend for scalability
+- Add real-time data integration
+- Implement complaint prediction (ML model)
+- Improve map visualization with advanced libraries
+- Build API-based backend for scalability
 
-##👨‍💻 Author
+## 👨‍💻 Author
 
-Vara Prasad K
-Aspiring Data Analyst
+- Vara Prasad K
+- Aspiring Data Analyst
