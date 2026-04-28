@@ -84,9 +84,6 @@ This system provides an interactive dashboard that:
 pip install -r requirements.txt
 streamlit run dashboard.py
 ```
-🌐 Live Demo
-
-👉 https://city-complaint-intelligence-system.streamlit.app/
 
 ## 📅 Data Source
 Public civic complaint dataset (2019–2022)
