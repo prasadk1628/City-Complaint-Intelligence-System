@@ -38,6 +38,8 @@ df['category_title'] = df['category_title'].replace({
 
 df['year'] = df['created_at'].dt.year
 
+st.markdown(f"📅 Data Last Updated: {df['created_at'].max().date()}")
+
 # 4️⃣ Filters
 st.sidebar.header("Filters")
 
@@ -64,25 +66,13 @@ if selected_ward != "All":
 if selected_agency != "All":
     filtered_df = filtered_df[filtered_df['civic_agency_title'] == selected_agency]
 
-#Agency Resolution Performance
-
-st.subheader("🏢 Agency Resolution Performance (%)")
-
-agency_perf = (
-    filtered_df.groupby('civic_agency_title')['complaint_status_title']
-    .apply(lambda x: (x == 'Resolved').mean() * 100)
-    .sort_values(ascending=False)
-)
-
-st.write(agency_perf.head(10))
+ward_df = filtered_df[filtered_df['ward_title'] != 'Other']
 
 #Top Wards vs Resolution Rate
-
-filtered_df = filtered_df[filtered_df['ward_title'] != 'Other']
 st.subheader("🏙️ Top Wards vs Resolution Rate")
 
 ward_stats = (
-    filtered_df.groupby('ward_title')
+    ward_df.groupby('ward_title')
     .agg(
         complaints=('ward_title', 'count'),
         resolution_rate=('complaint_status_title', lambda x: (x == 'Resolved').mean() * 100)
@@ -104,11 +94,11 @@ col3.metric("Resolved Complaints (%)", round((filtered_df['complaint_status_titl
 
 resolved = (filtered_df['complaint_status_title'] == 'Resolved').sum()
 total = len(filtered_df)
-efficiency = (resolved / total) * 100
+efficiency = (resolved / total) * 100 if total > 0 else 0
 
 
 # 6️⃣ Insight Explanation
-st.subheader("📊 Key Insights")
+st.subheader("📌 Key Observations")
 
 unresolved_pct = 100 - efficiency
 
@@ -129,12 +119,36 @@ st.line_chart(filtered_df.groupby('year').size())
 st.subheader("Complaint Status Distribution")
 st.bar_chart(filtered_df['complaint_status_title'].value_counts())
 
+#Agency Resolution Performance
+st.subheader("🏢 Agency Resolution Performance (%)")
+
+agency_perf = (
+    filtered_df.groupby('civic_agency_title')['complaint_status_title']
+    .apply(lambda x: (x == 'Resolved').mean() * 100)
+    .sort_values(ascending=False)
+)
+
+st.dataframe(agency_perf.head(10).to_frame(name='Resolution Rate (%)'))
+
+#Download Data
+st.subheader("⬇️ Download Data")
+
+csv = filtered_df.to_csv(index=False).encode('utf-8')
+
+st.download_button(
+    label="Download Filtered Data",
+    data=csv,
+    file_name="filtered_complaints.csv",
+    mime="text/csv"
+)
+
+
+
 # 8️⃣ Location Intelligence
 st.subheader("🚨 Top Problem Areas")
 
 top_wards = (
-    filtered_df[filtered_df['ward_title'] != 'Other']
-    .groupby('ward_title')
+    ward_df.groupby('ward_title')
     .size()
     .sort_values(ascending=False)
     .head(5)
@@ -153,17 +167,6 @@ if selected_ward != "All":
     st.write(top_issue)
 else:
     st.write("Select a ward to see its main issue")
-
-st.subheader("⬇️ Download Data")
-
-csv = filtered_df.to_csv(index=False).encode('utf-8')
-
-st.download_button(
-    label="Download Filtered Data",
-    data=csv,
-    file_name="filtered_complaints.csv",
-    mime="text/csv"
-)
 
 
 # 9️⃣ Maps Section
