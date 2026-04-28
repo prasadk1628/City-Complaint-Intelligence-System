@@ -124,5 +124,4 @@ This project demonstrates how data analytics can be used to:
 
 ## 👨‍💻 Author
 
-- Vara Prasad K
-- Aspiring Data Analyst
+- Vara Prasad K -Aspiring Data Analyst
