@@ -48,6 +48,10 @@ selected_ward = st.sidebar.selectbox(
     "Select Ward",
     ["All"] + sorted(df['ward_title'].unique().tolist())
 )
+selected_agency = st.sidebar.selectbox(
+    "Select Agency",
+    ["All"] + sorted(df['civic_agency_title'].unique().tolist())
+)
 
 filtered_df = df.copy()
 
@@ -56,6 +60,38 @@ if selected_year != "All":
 
 if selected_ward != "All":
     filtered_df = filtered_df[filtered_df['ward_title'] == selected_ward]
+
+if selected_agency != "All":
+    filtered_df = filtered_df[filtered_df['civic_agency_title'] == selected_agency]
+
+#Agency Resolution Performance
+
+st.subheader("🏢 Agency Resolution Performance (%)")
+
+agency_perf = (
+    filtered_df.groupby('civic_agency_title')['complaint_status_title']
+    .apply(lambda x: (x == 'Resolved').mean() * 100)
+    .sort_values(ascending=False)
+)
+
+st.write(agency_perf.head(10))
+
+#Top Wards vs Resolution Rate
+
+filtered_df = filtered_df[filtered_df['ward_title'] != 'Other']
+st.subheader("🏙️ Top Wards vs Resolution Rate")
+
+ward_stats = (
+    filtered_df.groupby('ward_title')
+    .agg(
+        complaints=('ward_title', 'count'),
+        resolution_rate=('complaint_status_title', lambda x: (x == 'Resolved').mean() * 100)
+    )
+    .sort_values('complaints', ascending=False)
+    .head(10)
+)
+
+st.bar_chart(ward_stats)
 
 # 5️⃣ KPI Section
 st.subheader("📊 Key Insights")
@@ -66,21 +102,21 @@ col1.metric("Total Complaints", len(filtered_df))
 col2.metric("Open Complaints (%)", round((filtered_df['complaint_status_title'] == 'Open').mean() * 100, 2))
 col3.metric("Resolved Complaints (%)", round((filtered_df['complaint_status_title'] == 'Resolved').mean() * 100, 2))
 
+resolved = (filtered_df['complaint_status_title'] == 'Resolved').sum()
+total = len(filtered_df)
+efficiency = (resolved / total) * 100
+
+
 # 6️⃣ Insight Explanation
-st.subheader("Key Insights :")
+st.subheader("📊 Key Insights")
 
-st.write("""
-• Infrastructure issues dominate (roads, garbage, lighting)\n
-• Complaint volume dropped during COVID period\n
-• Certain wards show consistently high complaint density\n
-• Over 50% complaints remain unresolved\n
-""")
+unresolved_pct = 100 - efficiency
 
-st.subheader("What This Means :")
-
-st.write("""
-This system highlights critical urban issues and inefficiencies in service delivery.
-It can help city authorities prioritize high-impact areas and improve response time.
+st.write(f"""
+• Infrastructure-related issues (roads, garbage, lighting) dominate complaint categories  
+• Complaint volume shows a sharp drop during COVID period  
+• Certain wards consistently report higher complaint density  
+• Over {round(unresolved_pct, 2)}% complaints remain unresolved  
 """)
 
 # 7️⃣ Core Charts
@@ -118,6 +154,18 @@ if selected_ward != "All":
 else:
     st.write("Select a ward to see its main issue")
 
+st.subheader("⬇️ Download Data")
+
+csv = filtered_df.to_csv(index=False).encode('utf-8')
+
+st.download_button(
+    label="Download Filtered Data",
+    data=csv,
+    file_name="filtered_complaints.csv",
+    mime="text/csv"
+)
+
+
 # 9️⃣ Maps Section
 st.subheader("Complaint Locations Map (Fallback View)")
 
@@ -154,19 +202,33 @@ ax2.set_xlabel("Longitude")
 ax2.set_ylabel("Latitude")
 st.pyplot(fig2)
 
-# 🔟 System Performance
+# 1️⃣0️⃣ Category vs Status Heatmap
+st.subheader("🔥 Category vs Status Heatmap")
+
+pivot = pd.crosstab(
+    filtered_df['category_title'],
+    filtered_df['complaint_status_title']
+)
+
+fig3, ax3 = plt.subplots()
+
+sns.heatmap(pivot, cmap="Reds", annot=False, ax=ax3)
+
+ax3.set_xlabel("Status")
+ax3.set_ylabel("Category")
+
+st.pyplot(fig3)
+
+
+# 1️⃣0️⃣ System Performance
 st.subheader("⚙️ Resolution Efficiency")
-
-resolved = (filtered_df['complaint_status_title'] == 'Resolved').sum()
-total = len(filtered_df)
-efficiency = (resolved / total) * 100
-
 st.metric("Resolution Rate (%)", round(efficiency, 2))
 
+# 1️⃣0️⃣ Automated Insight
 st.subheader("🧠 Automated Insight")
 
 if efficiency < 40:
-    st.warning("Low resolution rate indicates inefficiency in complaint handling.")
+    st.warning("Low resolution rate indicating  inefficiency in complaint handling.")
 elif efficiency < 70:
     st.info("Moderate performance in resolving complaints.")
 else:
