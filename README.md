@@ -90,12 +90,15 @@ streamlit run dashboard.py
 Public civic complaint dataset (2019–2022)
 Contains ~16,000+ complaint records with location, category, and status
 ## 📈 Project Structure
+
+```
 City-Complaint-Intelligence-System/
 │
 ├── dashboard.py
 ├── requirements.txt
 ├── Log of complaints.csv
 └── README.md
+```
 ## 📊 Why This Project Matters
 
 This project demonstrates how data analytics can be used to:
