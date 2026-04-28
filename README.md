@@ -1,5 +1,7 @@
 # 🏙️ City Complaint Intelligence System
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Open%20App-brightgreen)](https://city-complaint-intelligence-system.streamlit.app/)
+
 ## 🚀 Overview
 This project analyzes real-world civic complaint data to identify patterns, hotspots, and inefficiencies in urban service systems.
 
