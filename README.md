@@ -102,11 +102,11 @@ City-Complaint-Intelligence-System/
 ## 📸 Dashboard Preview
 
 This dashboard provides an overview of complaint trends, categories, and resolution performance.
-![Dashboard]<img width="1360" height="609" alt="image" src="https://github.com/user-attachments/assets/0ba24ec7-7f75-43c9-928c-2016493cacbd" />
+<img width="1360" height="609" alt="image" src="https://github.com/user-attachments/assets/0ba24ec7-7f75-43c9-928c-2016493cacbd" />
 
 ## 🔥 Complaint Heatmap
 
-![Heatmap]<img width="1161" height="768" alt="image" src="https://github.com/user-attachments/assets/2798c3ab-9135-4bbe-80fc-a5f8f5f05165" />
+<img width="1161" height="768" alt="image" src="https://github.com/user-attachments/assets/2798c3ab-9135-4bbe-80fc-a5f8f5f05165" />
 
 
 ## 📊 Why This Project Matters
