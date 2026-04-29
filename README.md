@@ -190,4 +190,4 @@ City-Complaint-Intelligence-System/
 
 **Vara Prasad K**  
 Aspiring Data Analyst | Python · SQL · Streamlit  
-📧 *(add email)* | [LinkedIn](https://linkedin.com) | [GitHub](https://github.com/prasadk1628)
+📧 *(kavalivaraprasad16@gmail.com)* | [LinkedIn](https://www.linkedin.com/in/vara-prasad-k-4a6026230/) | [GitHub](https://github.com/prasadk1628)
