@@ -167,10 +167,12 @@ City-Complaint-Intelligence-System/
 ### Complaint Heatmap by Ward
 ![Heatmap](image-4.png)
 
+### Category vs Status Heatmap
 ![Category vs Status Heatmap](image-5.png)
-
+### Code
 ![Python](image.png)
-![Sreamlit](image-1.png)
+
+### Dataset
 ![Dataset](image-2.png)
 
 ---
