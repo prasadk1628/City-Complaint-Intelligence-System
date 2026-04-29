@@ -1,9 +1,7 @@
 # 🏙️ City Complaint Intelligence System
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Open%20App-brightgreen)](https://city-complaint-intelligence-system.streamlit.app/)
-![Python](image.png)
-![Sreamlit](image-1.png)
-![Dataset](image-2.png)
+
 
 > **An end-to-end analytics project on municipal complaint data — identifying service gaps, resolution failures, and high-risk urban zones to support data-driven civic decision-making.**
 
@@ -162,6 +160,7 @@ City-Complaint-Intelligence-System/
 
 ## 📸 Screenshots
 
+
 ### Dashboard Overview
 ![Dashboard](image-3.png)
 
@@ -169,6 +168,10 @@ City-Complaint-Intelligence-System/
 ![Heatmap](image-4.png)
 
 ![Category vs Status Heatmap](image-5.png)
+
+![Python](image.png)
+![Sreamlit](image-1.png)
+![Dataset](image-2.png)
 
 ---
 
