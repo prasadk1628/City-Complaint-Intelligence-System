@@ -1,9 +1,13 @@
 # 🏙️ City Complaint Intelligence System
 
+> *Municipal complaint data, when properly analyzed, contains clear and actionable signals for urban governance.*
+
+An end-to-end analytics project on 16,000+ civic complaints — identifying service gaps, resolution failures, and high-risk urban zones to support data-driven decision-making.
+
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Open%20App-brightgreen)](https://city-complaint-intelligence-system.streamlit.app/)
-
-
-> **An end-to-end analytics project on municipal complaint data — identifying service gaps, resolution failures, and high-risk urban zones to support data-driven civic decision-making.**
+[![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.10-3776AB?logo=python&logoColor=white)](https://python.org)
+[![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?logo=streamlit&logoColor=white)](https://city-complaint-intelligence-system.streamlit.app/)
 
 ---
 
@@ -20,101 +24,130 @@ This project applies exploratory data analysis to a real municipal complaint log
 
 ---
 
-## 📊 Dataset Description
+## 📊 Dataset
 
-**File:** `complaints_log.csv`  
-**Records:** ~16,000+ complaint entries  
-**Period:** 2019 – 2022  
-**Source:** Public civic complaint dataset (municipal corporation log)
+| Property | Detail |
+|---|---|
+| File | `complaints_log.csv` |
+| Records | ~16,000+ complaint entries |
+| Period | 2019 – 2022 |
+| Source | Public civic complaint dataset (municipal corporation log) |
 
-| Column Name (Original) | Renamed To | Description |
+<details>
+<summary><b>📋 Column Reference (click to expand)</b></summary>
+
+| Original Column | Renamed To | Description |
 |---|---|---|
-| `Complaint_ID` | `complaint_id` | Unique identifier for each complaint |
-| `Date_Logged` | `date_logged` | Date the complaint was filed |
-| `Ward_No` | `ward_number` | Administrative ward where complaint was raised |
-| `Category` | `complaint_category` | Type of issue (Roads, Garbage, Drainage, etc.) |
-| `Sub_Category` | `complaint_subcategory` | More specific issue description |
-| `Status` | `resolution_status` | Current state: Open / In Progress / Resolved / Closed |
-| `Agency` | `responsible_agency` | Municipal department assigned to resolve the issue |
-| `Latitude` | `latitude` | GPS latitude of complaint location |
-| `Longitude` | `longitude` | GPS longitude of complaint location |
-| `Resolution_Date` | `date_resolved` | Date the complaint was marked resolved (if applicable) |
+| `Complaint_ID` | `complaint_id` | Unique identifier |
+| `Date_Logged` | `date_logged` | Date complaint was filed |
+| `Ward_No` | `ward_number` | Administrative ward |
+| `Category` | `complaint_category` | Issue type (Roads, Garbage, Drainage, etc.) |
+| `Sub_Category` | `complaint_subcategory` | Specific issue description |
+| `Status` | `resolution_status` | Open / In Progress / Resolved / Closed |
+| `Agency` | `responsible_agency` | Department assigned to resolve |
+| `Latitude` | `latitude` | GPS latitude |
+| `Longitude` | `longitude` | GPS longitude |
+| `Resolution_Date` | `date_resolved` | Date resolved (if applicable) |
 
-> **Note on original dataset:** The raw file used abbreviated column headers with inconsistent casing. All columns were renamed to snake_case for clarity and reproducibility. Any field labeled `HSC` in earlier versions of this dataset refers to the *Hyderabad Sub-Category* classification code — this was renamed to `complaint_subcategory` with human-readable values for analysis.
+> All columns renamed to snake_case for clarity. `HSC` fields in raw data refer to Hyderabad Sub-Category codes — replaced with human-readable values.
 
----
-
-## 🧹 Data Cleaning Steps
-
-1. **Standardized column names** — renamed all columns to consistent snake_case
-2. **Parsed date fields** — converted `date_logged` and `date_resolved` from mixed string formats to `datetime`
-3. **Removed duplicates** — dropped 214 fully duplicate rows
-4. **Handled nulls:**
-   - `date_resolved`: NULL is expected for unresolved complaints — retained as-is, flagged with an `is_resolved` boolean column
-   - `latitude` / `longitude`: ~4% missing — excluded from map visualizations only; retained for all non-geospatial analysis
-   - `responsible_agency`: ~1.2% missing — labeled as `"Unassigned"` 
-5. **Outlier check on dates** — removed 11 records with `date_logged` before 2015 (likely data entry errors)
-6. **Engineered features:**
-   - `resolution_days` = `date_resolved` - `date_logged` (days to close)
-   - `complaint_year`, `complaint_month` extracted from `date_logged`
-   - `is_resolved` boolean flag
+</details>
 
 ---
 
-## 🔍 Exploratory Data Analysis
+## 🧹 Data Cleaning
 
-### Complaint Volume Over Time
-- Complaints peaked in **2019–2020** before a significant drop in mid-2020 (COVID-19 lockdown effect)
+| Step | Action |
+|---|---|
+| Column naming | Standardized all headers to snake_case |
+| Date parsing | Converted mixed string formats to `datetime` |
+| Duplicates | Dropped 214 fully duplicate rows |
+| `date_resolved` nulls | Retained (expected for open complaints) — added `is_resolved` boolean flag |
+| `latitude/longitude` nulls | ~4% missing — excluded from map viz only, retained elsewhere |
+| `responsible_agency` nulls | ~1.2% missing — labeled `"Unassigned"` |
+| Date outliers | Removed 11 records with `date_logged` before 2015 (data entry errors) |
+
+**Engineered features:**
+- `resolution_days` = `date_resolved - date_logged`
+- `complaint_year`, `complaint_month` extracted from `date_logged`
+- `is_resolved` boolean flag
+
+---
+
+## 🔍 Key Findings
+
+### 📈 Volume Trends
+- Complaints peaked in **2019–2020**, then dropped sharply in mid-2020 due to COVID-19 lockdowns
 - Volume recovered in 2021 but did not return to pre-pandemic levels by end of 2022
-- **Month with highest complaints:** October–November consistently across years (post-monsoon infrastructure damage)
+- **Highest-complaint months:** October–November consistently (post-monsoon infrastructure damage)
 
-### Category Distribution
-- **Top 3 categories:** Roads & Footpaths (~34%), Garbage & Sanitation (~27%), Drainage (~18%)
-- These three categories account for **~79% of all complaints**
+### 🗂️ Category Distribution
+- Top 3 categories: **Roads & Footpaths (~34%), Garbage & Sanitation (~27%), Drainage (~18%)**
+- These three alone account for **~79% of all complaints**
 - Electrical/Lighting complaints are low in volume but show the worst resolution rates
 
-### Resolution Performance
-- **Overall resolution rate:** ~61%
-- **Average time to resolve:** 18.4 days
-- **Worst-performing agency:** Drainage & Sewerage Board — median resolution time of 34 days
-- **Best-performing agency:** Solid Waste Management — 89% resolution rate
+### ⚙️ Resolution Performance
+| Metric | Value |
+|---|---|
+| Overall resolution rate | ~61% |
+| Average resolution time | 18.4 days |
+| Worst-performing agency | Drainage & Sewerage Board (median 34 days) |
+| Best-performing agency | Solid Waste Management (89% resolution rate) |
 
-### Ward-Level Analysis
+### 🗺️ Ward-Level Analysis
 - Top 5 complaint-heavy wards account for **~23% of all complaints**
-- High-complaint wards are concentrated in the city's older infrastructure zones
-- Some wards show high complaint volume *and* low resolution rates — a double failure signal
+- High-complaint wards are concentrated in older infrastructure zones
+- Several wards show both high complaint volume *and* low resolution rates — a double failure signal
 
 ---
 
-## 💡 Key Insights (Business-Focused)
+## 💡 Business Insights
 
-**1. Three complaint types consume 79% of resources — fix them to fix the system.**  
-Roads, garbage, and drainage dominate. Targeted investment in these three areas would address the majority of citizen grievances. Generic budget distribution across all categories is inefficient.
+**1. Three complaint types consume 79% of resources — fix them to fix the system.**
+Roads, garbage, and drainage dominate. Targeted investment in these three areas addresses the majority of citizen grievances. Generic budget distribution across all categories is inefficient.
 
-**2. Resolution rate of 61% is a governance problem, not a data problem.**  
-Nearly 4 in 10 complaints remain open or stale. The dashboard surfaces exactly *which agencies* are failing and *which wards* they're failing in. That's directly actionable.
+**2. A 61% resolution rate is a governance problem, not a data problem.**
+Nearly 4 in 10 complaints remain open or stale. The dashboard surfaces exactly *which agencies* are failing and *which wards* they're failing in — directly actionable.
 
-**3. Post-monsoon (Oct–Nov) is the highest-risk window.**  
+**3. Post-monsoon (Oct–Nov) is the highest-risk window.**
 Complaint spikes follow the monsoon season consistently. Preventive maintenance scheduled for August–September could reduce reactive complaint volume by an estimated 15–20%.
 
-**4. Five wards need prioritized attention.**  
-These wards show both high volume and low resolution. They represent the highest citizen dissatisfaction risk. Any ward-level resource reallocation should start here.
+**4. Five wards need prioritized attention.**
+These wards show both high volume and low resolution — the highest citizen dissatisfaction risk. Any ward-level resource reallocation should start here.
 
-**5. COVID drop ≠ improvement.**  
-The 2020 volume drop is a data artifact, not a service improvement. Normalization is needed before any year-on-year comparison for reporting purposes.
+**5. The 2020 volume drop is a data artifact, not a service improvement.**
+Normalization is needed before any year-on-year comparison for reporting purposes.
 
 ---
 
 ## ✅ Conclusion
 
-This analysis demonstrates that municipal complaint data — when properly cleaned and analyzed — contains clear, actionable signals for urban governance.
-
 The three most immediate decisions this analysis supports:
+
 - **Redirect maintenance budgets** toward the top 3 complaint categories
 - **Set SLA targets per agency** based on current median resolution times
 - **Pre-position resources** in high-risk wards before the monsoon season
 
-The live Streamlit dashboard allows city planners or analysts to filter by year, ward, and agency — making this not just a retrospective report but a usable decision-support tool.
+The live Streamlit dashboard allows planners to filter by year, ward, and agency — making this not just a retrospective report but a usable decision-support tool.
+
+---
+
+## 📸 Screenshots
+
+### Dashboard Overview
+![Dashboard](image-3.png)
+
+### Complaint Heatmap by Ward
+![Heatmap](image-4.png)
+
+### Category vs Status Heatmap
+![Category vs Status](image-5.png)
+
+### Dataset & Code
+<p>
+  <img src="image-2.png" width="48%"/>
+  <img src="image.png" width="48%"/>
+</p>
 
 ---
 
@@ -146,48 +179,34 @@ streamlit run dashboard.py
 ```
 City-Complaint-Intelligence-System/
 │
-├── dashboard.py              # Streamlit app
-├── requirements.txt          # Dependencies
-├── complaints_log.csv        # Cleaned dataset
-├── Log of complaints.ipynb   # Full EDA notebook
-├── assets/
-│   ├── dashboard_preview.png
-│   └── heatmap_preview.png
+├── dashboard.py                 # Streamlit app
+├── requirements.txt             # Dependencies
+├── complaints_log.csv           # Cleaned dataset
+├── Log of complaints.ipynb      # Full EDA notebook
 └── README.md
 ```
 
 ---
 
-## 📸 Screenshots
+## 🔮 Future Improvements
 
-
-### Dashboard Overview
-![Dashboard](image-3.png)
-
-### Complaint Heatmap by Ward
-![Heatmap](image-4.png)
-
-### Category vs Status Heatmap
-![Category vs Status Heatmap](image-5.png)
-### Code
-![Python](image.png)
-
-### Dataset
-![Dataset](image-2.png)
+- Complaint volume **forecasting** using ARIMA / Prophet for peak period prediction
+- **Real-time data** integration via civic API
+- **Ward comparison** view — side-by-side resolution performance
+- Lightweight **complaint classification model** using NLP on sub-category text
 
 ---
 
-## 🔮 Future Improvements
+## 📄 License
 
-- Add complaint volume **forecasting** (ARIMA / Prophet) to predict peak periods
-- Integrate **real-time data** via civic API (where available)
-- Add **ward comparison** view — side-by-side resolution performance
-- Build a lightweight **complaint classification model** using NLP on sub-category text
+Licensed under the [MIT License](LICENSE).
 
 ---
 
 ## 👤 Author
 
-**Vara Prasad K**  
-Aspiring Data Analyst | Python · SQL · Streamlit  
-📧 *(kavalivaraprasad16@gmail.com)* | [LinkedIn](https://www.linkedin.com/in/vara-prasad-k-4a6026230/) | [GitHub](https://github.com/prasadk1628)
+**Vara Prasad K** — Aspiring Data Analyst | Python · SQL · Streamlit
+
+[![Email](https://img.shields.io/badge/Email-kavalivaraprasad16@gmail.com-D14836?logo=gmail&logoColor=white)](mailto:kavalivaraprasad16@gmail.com)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-vara--prasad--k-0077B5?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/vara-prasad-k-4a6026230/)
+[![GitHub](https://img.shields.io/badge/GitHub-prasadk1628-181717?logo=github&logoColor=white)](https://github.com/prasadk1628)
