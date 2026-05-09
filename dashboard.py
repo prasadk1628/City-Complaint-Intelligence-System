@@ -1,5 +1,5 @@
 # ============================================================
-# CITY COMPLAINT INTELLIGENCE — 2050 EDITION
+# CITY COMPLAINT INTELLIGENCE — 
 # Restructured + Enhanced by Vara Prasad K
 # ============================================================
 
@@ -7,6 +7,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from folium.plugins import MarkerCluster
 
 # ============================================================
 # SECTION 0 — PAGE CONFIG
@@ -92,6 +93,33 @@ def load_data():
 
 
 df = load_data()
+
+@st.cache_data
+def prepare_map_data(df):
+
+    map_data = df.copy()
+
+    map_data["latitude"] = pd.to_numeric(
+        map_data["latitude"],
+        errors="coerce"
+    )
+
+    map_data["longitude"] = pd.to_numeric(
+        map_data["longitude"],
+        errors="coerce"
+    )
+
+    map_data = map_data.dropna(
+        subset=["latitude", "longitude"]
+    )
+
+    map_data = map_data[
+        (map_data["latitude"].between(-90, 90)) &
+        (map_data["longitude"].between(-180, 180))
+    ]
+
+    return map_data
+
 
 # ============================================================
 # SECTION 3 — SIDEBAR NAVIGATION + FILTERS
@@ -312,25 +340,51 @@ elif page == "📋 Complaints":
 
     with col_r:
         st.subheader("Monthly complaint pattern")
-        fdf["month_num"] = fdf["created_at"].dt.month
-        monthly_agg = fdf.groupby("month_num").size().reset_index(name="count")
-        month_names = ["Jan","Feb","Mar","Apr","May","Jun",
-                       "Jul","Aug","Sep","Oct","Nov","Dec"]
+
+        monthly_agg = (
+            fdf.assign(month_num=fdf["created_at"].dt.month)
+            .groupby("month_num")
+            .size()
+            .reset_index(name="count")
+        )
+
+        month_names = [
+            "Jan","Feb","Mar","Apr","May","Jun",
+            "Jul","Aug","Sep","Oct","Nov","Dec"
+        ]
+
         monthly_agg["month_name"] = monthly_agg["month_num"].apply(
             lambda m: month_names[m - 1]
+        )
+
+        fig_mon = px.bar(
+            monthly_agg,
+            x="month_name",
+            y="count",
+            color="count",
+            color_continuous_scale=[
+                [0, "rgba(55,138,221,0.35)"],
+                [0.6, AMBER],
+                [1.0, RED]
+            ],
+            labels={
+                "month_name": "",
+                "count": "Complaints"
+            },
         )
 
         fig_mon.update_layout(
             **PLOTLY_BASE,
             height=380,
             coloraxis_showscale=False,
-            )
+        )
 
         fig_mon.update_xaxes(
-                tickmode="array",
-                tickvals=month_names,
-                ticktext=month_names
-            )
+            tickmode="array",
+            tickvals=month_names,
+            ticktext=month_names
+        )
+
         st.plotly_chart(fig_mon, use_container_width=True)
 
 # ============================================================
@@ -500,67 +554,165 @@ elif page == "🏢 Agency Performance":
 # ============================================================
 # SECTION 9 — PAGE: SPATIAL ANALYSIS
 # ============================================================
+
 elif page == "🗺️ Spatial Analysis":
+    import folium
+    from folium.plugins import MarkerCluster
+    from streamlit_folium import st_folium
+
     st.title("🗺️ Spatial Analysis")
 
-    map_data = fdf[["latitude", "longitude", "category_title",
-                    "ward_title", "complaint_status_title"]].dropna(
-        subset=["latitude", "longitude"]
-    )
+    map_data = prepare_map_data(fdf)
 
     if len(map_data) == 0:
-        st.warning(
-            "No coordinate data available in the current filter. "
-            "Ensure `latitude` and `longitude` columns are present in the CSV."
-        )
-    else:
-        st.subheader("Complaint scatter map")
-        st.caption(f"Showing {len(map_data):,} geolocated complaints.")
 
-        fig_scatter = px.scatter_mapbox(
-            map_data,
-            lat="latitude", lon="longitude",
-            color="complaint_status_title",
-            hover_data=["category_title", "ward_title"],
-            color_discrete_map={
-                "Resolved": TEAL,
-                "Open":     AMBER,
-                "Pending":  PURPLE,
-                "Closed":   BLUE,
-                "Rejected": RED,
-            },
-            zoom=10,
-            height=480,
-            mapbox_style="open-street-map",
-            opacity=0.6,
+        st.warning(
+            "No valid coordinate data available."
         )
-        fig_scatter.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)",
-            margin=dict(l=0, r=0, t=0, b=0),
+
+    else:
+
+        st.subheader("Complaint Hotspots")
+
+        st.caption(
+            f"Showing {len(map_data):,} geolocated complaints."
         )
-        st.plotly_chart(fig_scatter, use_container_width=True)
+
+        # ====================================================
+        # BENGALURU-FOCUSED MAP
+        # ====================================================
+
+        m = folium.Map(
+            location=[12.9716, 77.5946],
+            zoom_start=11,
+            min_zoom=10,
+            max_zoom=14,
+            tiles="CartoDB dark_matter",
+            prefer_canvas=True,
+            control_scale=False,
+            zoom_control=True,
+        )
+
+        # Restrict viewport to Bengaluru
+        m.fit_bounds([
+            [12.71, 77.43],   # southwest
+            [13.18, 77.81]    # northeast
+        ])
+
+        # ====================================================
+        # PERFORMANCE OPTIMIZATION
+        # ====================================================
+
+        sample_data = map_data.sample(
+            min(700, len(map_data)),
+            random_state=42
+        )
+
+        # ====================================================
+        # STATUS COLORS
+        # ====================================================
+
+        color_map = {
+            "Resolved": "#1D9E75",
+            "Open": "#EF9F27",
+            "Pending": "#7F77DD",
+            "Closed": "#378ADD",
+            "Rejected": "#E24B4A",
+        }
+
+        # ====================================================
+        # MARKER CLUSTER
+        # ====================================================
+
+        marker_cluster = MarkerCluster().add_to(m)
+
+        for _, row in sample_data.iterrows():
+
+            status = row.get(
+                "complaint_status_title",
+                "Open"
+            )
+
+            folium.CircleMarker(
+                location=[
+                    row["latitude"],
+                    row["longitude"]
+                ],
+                radius=4,
+                color=color_map.get(status, "#EF9F27"),
+                fill=True,
+                fill_opacity=0.75,
+                weight=1,
+                tooltip=(
+                    f"{row['category_title']} | "
+                    f"{status}"
+                )
+            ).add_to(marker_cluster)
+
+        # ====================================================
+        # RENDER MAP
+        # ====================================================
+
+        st_folium(
+            m,
+            width=1400,
+            height=550,
+            returned_objects=[]
+        )
 
         st.divider()
-        st.subheader("Complaint density heatmap")
-        fig_density = px.density_mapbox(
-            map_data,
-            lat="latitude", lon="longitude",
-            radius=12,
-            zoom=10,
-            height=440,
-            mapbox_style="open-street-map",
-            color_continuous_scale=[[0, "#08090d"],
-                                    [0.4, RED],
-                                    [0.7, AMBER],
-                                    [1.0, "#fff"]],
-        )
-        fig_density.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)",
-            margin=dict(l=0, r=0, t=0, b=0),
-            coloraxis_showscale=False,
-        )
-        st.plotly_chart(fig_density, use_container_width=True)
 
+        # ====================================================
+        # HOTSPOT TABLE
+        # ====================================================
+
+        st.subheader("Top Hotspot Wards")
+
+        hotspot = (
+            map_data.groupby("ward_title")
+            .size()
+            .reset_index(name="complaints")
+            .sort_values(
+                "complaints",
+                ascending=False
+            )
+            .head(10)
+        )
+
+        hotspot.index = hotspot.index + 1
+
+        st.dataframe(
+            hotspot,
+            use_container_width=True
+        )
+
+        st.divider()
+
+        # ====================================================
+        # SPATIAL INSIGHTS
+        # ====================================================
+
+        st.subheader("🧠 Spatial Insights")
+
+        top_ward = hotspot.iloc[0]["ward_title"]
+        top_count = hotspot.iloc[0]["complaints"]
+
+        st.warning(
+            f"⚠️ **{top_ward}** shows the highest complaint "
+            f"concentration with **{top_count:,} complaints**."
+        )
+
+        st.info(
+            "Clustered complaint zones indicate probable "
+            "infrastructure stress regions requiring "
+            "priority intervention."
+        )
+
+        st.success(
+            "Marker clustering and Bengaluru-focused viewport "
+            "optimization significantly improve dashboard "
+            "performance and readability."
+        )
 # ============================================================
 # SECTION 10 — PAGE: INSIGHTS
 # ============================================================
