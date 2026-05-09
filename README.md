@@ -1,4 +1,4 @@
-# 🏙️ City Complaint Intelligence System
+# 🏙️ CivicLens — Urban Complaint Analytics
 
 > *Municipal complaint data, when properly analyzed, contains clear and actionable signals for urban governance.*
 

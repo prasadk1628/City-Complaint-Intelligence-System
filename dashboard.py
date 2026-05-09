@@ -18,7 +18,7 @@ from utils.insights import render_insights
 # ============================================================
 
 st.set_page_config(
-    page_title="City Complaint Intelligence",
+    page_title="CivicLens — Urban Complaint Analytics",
     page_icon="🏙️",
     layout="wide",
     initial_sidebar_state="expanded",
