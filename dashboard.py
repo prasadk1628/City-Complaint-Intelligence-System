@@ -196,18 +196,53 @@ if page == "📊 Overview":
         st.plotly_chart(fig_donut, use_container_width=True)
 
     with col_r:
-        st.subheader("Yearly complaint trend")
-        yearly = fdf.groupby("year").size().reset_index(name="count")
-        fig_trend = px.line(
-            yearly, x="year", y="count",
-            markers=True,
-            labels={"year": "", "count": "Complaints"},
-            color_discrete_sequence=[BLUE],
+        st.subheader("Monthly complaint pattern")
+    
+        monthly_agg = (
+            fdf.assign(month_num=fdf["created_at"].dt.month)
+            .groupby("month_num")
+            .size()
+            .reset_index(name="count")
         )
-        fig_trend.update_traces(line_width=2, marker_size=6, fill="tozeroy",
-                                fillcolor=hex_to_rgba(BLUE, 0.10))
-        fig_trend.update_layout(**PLOTLY_BASE, height=320)
-        st.plotly_chart(fig_trend, use_container_width=True)
+    
+        month_names = [
+            "Jan","Feb","Mar","Apr","May","Jun",
+            "Jul","Aug","Sep","Oct","Nov","Dec"
+        ]
+    
+        monthly_agg["month_name"] = monthly_agg["month_num"].apply(
+            lambda m: month_names[m - 1]
+        )
+    
+        fig_mon = px.bar(
+            monthly_agg,
+            x="month_name",
+            y="count",
+            color="count",
+            color_continuous_scale=[
+                [0, "rgba(55,138,221,0.35)"],
+                [0.6, AMBER],
+                [1.0, RED]
+            ],
+            labels={
+                "month_name": "",
+                "count": "Complaints"
+            },
+        )
+    
+        fig_mon.update_layout(
+            **PLOTLY_BASE,
+            height=380,
+            coloraxis_showscale=False,
+        )
+    
+        fig_mon.update_xaxes(
+            tickmode="array",
+            tickvals=month_names,
+            ticktext=month_names
+        )
+    
+        st.plotly_chart(fig_mon, use_container_width=True)
 
     st.divider()
 
@@ -285,17 +320,17 @@ elif page == "📋 Complaints":
             lambda m: month_names[m - 1]
         )
 
-        fig_mon = px.bar(
-            monthly_agg, x="month_name", y="count",
-            color="count",
-            color_continuous_scale=[[0, hex_to_rgba(BLUE, 0.35)], [0.6, AMBER], [1.0, RED]],
-            labels={"month_name": "", "count": "Complaints"},
-        )
-        fig_mon.update_layout(**PLOTLY_BASE, height=380,
-                              coloraxis_showscale=False,
-                              xaxis=dict(tickmode="array",
-                                         tickvals=month_names,
-                                         ticktext=month_names))
+        fig_mon.update_layout(
+            **PLOTLY_BASE,
+            height=380,
+            coloraxis_showscale=False,
+            )
+
+        fig_mon.update_xaxes(
+                tickmode="array",
+                tickvals=month_names,
+                ticktext=month_names
+            )
         st.plotly_chart(fig_mon, use_container_width=True)
 
 # ============================================================
@@ -496,7 +531,7 @@ elif page == "🗺️ Spatial Analysis":
             },
             zoom=10,
             height=480,
-            mapbox_style="carto-darkmatter",
+            mapbox_style="open-street-map",
             opacity=0.6,
         )
         fig_scatter.update_layout(
@@ -513,7 +548,7 @@ elif page == "🗺️ Spatial Analysis":
             radius=12,
             zoom=10,
             height=440,
-            mapbox_style="carto-darkmatter",
+            mapbox_style="open-street-map",
             color_continuous_scale=[[0, "#08090d"],
                                     [0.4, RED],
                                     [0.7, AMBER],
