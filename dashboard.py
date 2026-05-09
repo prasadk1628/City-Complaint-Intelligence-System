@@ -36,7 +36,7 @@ df = load_data()
 
 with st.sidebar:
 
-    st.markdown("### 🏙️ City Intelligence")
+    st.markdown("### 🏙️ CivicLens")
     st.caption("Urban Complaint Analytics")
     st.divider()
 
@@ -45,7 +45,7 @@ with st.sidebar:
         options=[
             "📊 Overview",
             "📋 Complaints",
-            "🏘️ Ward Intelligence",
+            "🏘️ Ward Level Analysis",
             "🏢 Agency Performance",
             "🗺️ Spatial Analysis",
             "🧠 Insights",
@@ -119,7 +119,7 @@ elif page == "📋 Complaints":
         fdf
     )
 
-elif page == "🏘️ Ward Intelligence":
+elif page == "🏘️ Ward Level Analysis":
 
     render_wards(
         fdf,

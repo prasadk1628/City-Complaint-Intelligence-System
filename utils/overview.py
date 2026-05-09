@@ -24,6 +24,30 @@ def render_overview(
     open_rate = metrics["open_rate"]
     peak_month = metrics["peak_month"]
 
+    
+    # ========================================================
+    # HERO SECTION
+    # ========================================================
+    st.title("🏙️ CivicLens — Urban Complaint Analytics")
+    st.markdown("""
+    
+    Analyze real-world civic complaint data to uncover:
+
+    - infrastructure stress zones
+    - ward-level service gaps
+    - operational inefficiencies
+    - complaint resolution performance
+    - urban governance patterns
+
+    This dashboard transforms raw municipal complaint records
+    into actionable urban intelligence using interactive
+    analytics, geospatial visualization, and performance
+    monitoring.
+
+    **Coverage:** Bengaluru civic complaints dataset  
+    **Focus Areas:** Complaints, agencies, wards, hotspots, resolution efficiency
+    """)
+
     st.title("📊 Overview")
 
     # ========================================================

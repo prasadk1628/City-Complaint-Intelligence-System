@@ -134,21 +134,18 @@ The live Streamlit dashboard allows planners to filter by year, ward, and agency
 
 ## 📸 Screenshots
 
-### Dashboard Overview
-![Dashboard](image-3.png)
+### 1. Dashboard Overview
 
-### Complaint Heatmap by Ward
-![Heatmap](image-4.png)
+![Dashboard](asstes/Dashboard.png)
 
-### Category vs Status Heatmap
-![Category vs Status](image-5.png)
+### 2.Complaint Heatmap by Ward
+![Heatmap](asstes/Heatmap.png)
 
-### Dataset & Code
-<p>
-  <img src="image-2.png" width="48%"/>
-  <img src="image.png" width="48%"/>
-</p>
+### 3.Spatial Map
+![Spatial_Map](asstes/SpatialMap.png)
 
+### 4.Resolutions
+![Resolutions](asstes/Resolutions.png)
 ---
 
 ## 🛠️ Tech Stack
