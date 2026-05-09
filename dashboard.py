@@ -1,5 +1,4 @@
 # ============================================================
-# CITY COMPLAINT INTELLIGENCE — 
 # Restructured + Enhanced by Vara Prasad K
 # ============================================================
 
@@ -13,7 +12,7 @@ from folium.plugins import MarkerCluster
 # SECTION 0 — PAGE CONFIG
 # ============================================================
 st.set_page_config(
-    page_title="City Complaint Intelligence",
+    page_title="CivicLens — Urban Complaint Analytics",
     page_icon="🏙️",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -801,5 +800,5 @@ elif page == "🧠 Insights":
 **About** — This dashboard analyses real-world civic complaint data to identify
 patterns, hotspots, and inefficiencies in urban service delivery using data analytics.
 
-*City Complaint Intelligence · Built by Vara Prasad K*
+*CivicLens — Urban Complaint Analytics · Built by Vara Prasad K*
 """)
